@@ -1,0 +1,46 @@
+#!/bin/sh
+# Test commit
+
+set -e
+set -x
+
+cmake_version_major=3
+cmake_version_minor=8
+cmake_version_patch=2
+
+download_cmake()
+{
+  if [ ! -d downloads ]; then
+    (
+      mkdir downloads
+      cd downloads
+      wget https://cmake.org/files/v${cmake_version_major}.${cmake_version_minor}/cmake-${cmake_version_major}.${cmake_version_minor}.${cmake_version_patch}-Linux-x86_64.tar.gz
+    )
+  fi
+}
+
+unpack_cmake()
+{
+  tar xf downloads/cmake-${cmake_version_major}.${cmake_version_minor}.${cmake_version_patch}-Linux-x86_64.tar.gz
+  echo "$(pwd)/cmake-${cmake_version_major}.${cmake_version_minor}.${cmake_version_patch}-Linux-x86_64/bin"
+}
+
+cpp()
+{
+    (
+        rm -rf build
+        mkdir build
+        cd build
+        cmake -Dtest=ON .. || cat CMakeFiles/CMakeError.log
+        make
+        fakeroot ctest -V
+        make DESTDIR=../install install
+    )
+}
+
+
+download_cmake
+PATH="$(unpack_cmake):$PATH"
+cpp
+
+exit 0

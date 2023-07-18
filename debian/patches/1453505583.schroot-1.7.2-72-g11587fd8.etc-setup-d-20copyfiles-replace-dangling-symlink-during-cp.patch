@@ -1,0 +1,33 @@
+Subject: Etc/setup.d/20copyfiles: Replace dangling symlink during cp. #1
+Origin: release/schroot-1.7.2-72-g11587fd8 <https://codeberg.org/shelter/reschroot/commit/11587fd8>
+Upstream-Author: Samson Yeung <fragmede@onepatchdown.net>
+Date: Fri Jan 22 15:33:03 2016 -0800
+
+    Add --remove-destination to the cp calls in etc/setup.d/20copyfiles to
+    fix problems with dangling symlinks.
+
+    Error message from cp is:
+      cp: not writing through dangling symlink ‘asymlinkfile’
+
+    This is useful since /etc/resolv.conf may be a dangling symlink ( which
+    happens if resolvconf is installed in the schroot, or if the schroot
+    uses systemd and /etc/resolv.conf points to the non-existant
+    /run/systemd/resolve/resolv.conf ).
+
+    Adding --remove-destination fixes this. (cp -f doesn't fix it.)
+
+--- a/etc/setup.d/20copyfiles
++++ b/etc/setup.d/20copyfiles
+@@ -63,10 +63,10 @@
+         # Copy only if files are different
+         if [ "$COPY" = "true" ]; then
+             if [ -f "$1" ]; then
+-                cp --preserve=all $CP_VERBOSE "$1" "$2"
++                cp --remove-destination --preserve=all $CP_VERBOSE "$1" "$2"
+             else
+                 # Copy non-regular file directly
+-                cp -a $CP_VERBOSE "$1" "$2"
++                cp --remove-destination -a $CP_VERBOSE "$1" "$2"
+             fi
+         fi
+ 

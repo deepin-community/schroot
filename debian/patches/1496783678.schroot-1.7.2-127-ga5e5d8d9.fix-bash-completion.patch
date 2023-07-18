@@ -1,0 +1,25 @@
+Subject: Fix bash completion
+Origin: release/schroot-1.7.2-127-ga5e5d8d9
+Upstream-Author: Raphaël Hertzog <hertzog@debian.org>
+Date: Tue Jun 6 22:14:38 2017 +0100
+Bug-Debian: https://bugs.debian.org/855283
+Forwarded: not-needed
+
+--- a/etc/bash_completion/schroot
++++ b/etc/bash_completion/schroot
+@@ -15,7 +15,7 @@
+ # along with this program.  If not, see
+ # <http://www.gnu.org/licenses/>.
+ 
+-have schroot &&
++_have schroot &&
+ _schroot()
+ {
+     local cur prev options
+@@ -33,5 +33,4 @@
+         COMPREPLY=( $(compgen -W "$options" -- $cur) )
+     fi
+     return 0
+-}
+-complete -F _schroot schroot
++} && complete -F _schroot schroot

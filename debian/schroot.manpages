@@ -1,0 +1,16 @@
+
+debian/install/usr/share/man/de/man1/schroot.1
+debian/install/usr/share/man/de/man5/schroot-script-config.5
+debian/install/usr/share/man/de/man5/schroot-setup.5
+debian/install/usr/share/man/de/man5/schroot.conf.5
+debian/install/usr/share/man/de/man7/schroot-faq.7
+debian/install/usr/share/man/fr/man1/schroot.1
+debian/install/usr/share/man/fr/man5/schroot-script-config.5
+debian/install/usr/share/man/fr/man5/schroot-setup.5
+debian/install/usr/share/man/fr/man5/schroot.conf.5
+debian/install/usr/share/man/fr/man7/schroot-faq.7
+debian/install/usr/share/man/man1/schroot.1
+debian/install/usr/share/man/man5/schroot-script-config.5
+debian/install/usr/share/man/man5/schroot-setup.5
+debian/install/usr/share/man/man5/schroot.conf.5
+debian/install/usr/share/man/man7/schroot-faq.7

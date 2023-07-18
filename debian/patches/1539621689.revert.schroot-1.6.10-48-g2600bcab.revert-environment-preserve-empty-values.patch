@@ -1,0 +1,328 @@
+Subject: Revert "environment: Preserve empty values"
+Author: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Forwarded: not-needed
+Last-Update: 2022-05-29
+
+    Upstream commit 2600b ("environment: Preserve empty values") causes
+    the Debian build to fail in the test suite. Revert that change for
+    the time being and investigate later.
+
+    The failing test:
+
+    test 2
+        Start 2: sbuild-chroot-chroot
+
+    2: Test command: /<<PKGBUILDDIR>>/debian/build/test/sbuild-chroot-chroot
+    2: Test timeout computed to be: 10000000
+    2: .........................Additional environment: CHROOT_BTRFS_SNAPSHOT_NAME=
+    2: F..........................................................................................Additional environment: CHROOT_LVM_SNAPSHOT_DEVICE=
+    2: Additional environment: CHROOT_LVM_SNAPSHOT_NAME=
+    2: F..................
+    2: 
+    2: 
+    2: !!!FAILURES!!!
+    2: Test Results:
+    2: Run:  133   Failures: 2   Errors: 0
+    2: 
+    2: 
+    2: 1) test: test_chroot_btrfs_snapshot::test_setup_env (F) line: 412 ./test/test-sbuild-chroot.h
+    2: assertion failed
+    2: - Expression: extra.empty()
+    2: 
+    2: 
+    2: 2) test: test_chroot_lvm_snapshot::test_setup_env (F) line: 412 ./test/test-sbuild-chroot.h
+    2: assertion failed
+    2: - Expression: extra.empty()
+    2: 
+    2: 
+    2/8 Test #2: sbuild-chroot-chroot .............***Failed    0.05 sec
+
+--- a/sbuild/sbuild-chroot-facet-mountable.cc
++++ b/sbuild/sbuild-chroot-facet-mountable.cc
+@@ -105,9 +105,7 @@
+ chroot_facet_mountable::setup_env (chroot const& chroot,
+                                    environment&  env) const
+ {
+-  const auto& device = get_mount_device();
+-  if (!device.empty())
+-    env.add("CHROOT_MOUNT_DEVICE", get_mount_device());
++  env.add("CHROOT_MOUNT_DEVICE", get_mount_device());
+   env.add("CHROOT_MOUNT_OPTIONS", get_mount_options());
+   env.add("CHROOT_LOCATION", get_location());
+ }
+--- a/sbuild/sbuild-chroot.cc
++++ b/sbuild/sbuild-chroot.cc
+@@ -558,9 +558,7 @@
+   env.add("CHROOT_NAME", chroot.get_name());
+   env.add("SESSION_ID", chroot.get_name());
+   env.add("CHROOT_DESCRIPTION", chroot.get_description());
+-  const auto& location = chroot.get_mount_location();
+-  if (!location.empty())
+-    env.add("CHROOT_MOUNT_LOCATION", chroot.get_mount_location());
++  env.add("CHROOT_MOUNT_LOCATION", chroot.get_mount_location());
+   env.add("CHROOT_PATH", chroot.get_path());
+   if (!chroot.get_script_config().empty())
+     env.add("CHROOT_SCRIPT_CONFIG", normalname(std::string(SCHROOT_SYSCONF_DIR) +  '/' + chroot.get_script_config()));
+--- a/sbuild/sbuild-environment.cc
++++ b/sbuild/sbuild-environment.cc
+@@ -93,9 +93,9 @@
+ void
+ environment::add (value_type const& value)
+ {
+-  if (!value.first.empty())
++  remove(value);
++  if (!value.first.empty() && !value.second.empty())
+     {
+-      remove(value);
+       if (this->filter.str().empty() ||
+           !regex_search(value.first, this->filter))
+         {
+@@ -105,15 +105,8 @@
+                                   << std::endl;
+         }
+       else
+-        {
+-          log_debug(DEBUG_INFO) << "Filtered from environment: " << value.first
+-                                << std::endl;
+-        }
+-    }
+-  else
+-    {
+-      log_debug(DEBUG_WARNING) << "Attempt to insert environment variable with no name"
+-                               << std::endl;
++        log_debug(DEBUG_INFO) << "Filtered from environment: " << value.first
++                              << std::endl;
+     }
+ }
+ 
+--- a/test/sbuild-environment.cc
++++ b/test/sbuild-environment.cc
+@@ -36,7 +36,7 @@
+   CPPUNIT_TEST(test_add_string_pair);
+   CPPUNIT_TEST(test_add_template);
+   CPPUNIT_TEST(test_add_string);
+-  CPPUNIT_TEST(test_add_empty);
++  CPPUNIT_TEST(test_add_empty_implicit_remove);
+   CPPUNIT_TEST(test_remove_strv);
+   CPPUNIT_TEST(test_remove_env);
+   CPPUNIT_TEST(test_remove_value);
+@@ -72,7 +72,6 @@
+     this->env->add(std::make_pair("SHELL", "/bin/sh"));
+     this->env->add(std::make_pair("USER", "root"));
+     this->env->add(std::make_pair("COLUMNS", "80"));
+-    this->env->add(std::make_pair("EMPTY", ""));
+ 
+     this->half_env = new sbuild::environment;
+     this->half_env->add(std::make_pair("TERM", "wy50"));
+@@ -107,10 +106,10 @@
+   test_construction()
+   {
+     const char *items[] = {"TERM=wy50", "SHELL=/bin/sh",
+-                           "USER=root", "COLUMNS=80", "EMPTY=", 0};
++                           "USER=root", "COLUMNS=80", 0};
+     sbuild::environment e(const_cast<char **>(&items[0]));
+ 
+-    CPPUNIT_ASSERT(e.size() == 5);
++    CPPUNIT_ASSERT(e.size() == 4);
+ 
+     CPPUNIT_ASSERT(e == *this->env);
+   }
+@@ -119,11 +118,11 @@
+   test_add_strv()
+   {
+     const char *items[] = {"TERM=wy50", "SHELL=/bin/sh",
+-                           "USER=root", "COLUMNS=80", "EMPTY=", 0};
++                           "USER=root", "COLUMNS=80", 0};
+     sbuild::environment e;
+     e.add(const_cast<char **>(&items[0]));
+ 
+-    CPPUNIT_ASSERT(e.size() == 5);
++    CPPUNIT_ASSERT(e.size() == 4);
+ 
+     CPPUNIT_ASSERT(e == *this->env);
+   }
+@@ -145,7 +144,6 @@
+     e.add(sbuild::environment::value_type("SHELL", "/bin/sh"));
+     e.add(sbuild::environment::value_type("USER", "root"));
+     e.add(sbuild::environment::value_type("COLUMNS", "80"));
+-    e.add(sbuild::environment::value_type("EMPTY", ""));
+ 
+     CPPUNIT_ASSERT(e == *this->env);
+   }
+@@ -158,7 +156,6 @@
+     e.add("SHELL", "/bin/sh");
+     e.add("USER", "root");
+     e.add("COLUMNS", "80");
+-    e.add("EMPTY", "");
+ 
+     CPPUNIT_ASSERT(e == *this->env);
+   }
+@@ -171,7 +168,6 @@
+     e.add("SHELL", "/bin/sh");
+     e.add("USER", std::string("root"));
+     e.add("COLUMNS", 80);
+-    e.add("EMPTY", "");
+ 
+     CPPUNIT_ASSERT(e == *this->env);
+   }
+@@ -184,25 +180,21 @@
+     e.add("SHELL=/bin/sh");
+     e.add("USER=root");
+     e.add("COLUMNS=80");
+-    e.add("EMPTY=");
+ 
+     CPPUNIT_ASSERT(e == *this->env);
+   }
+ 
+   void
+-  test_add_empty()
++  test_add_empty_implicit_remove()
+   {
+     sbuild::environment e;
+     e.add("TERM=wy50");
+     e.add("USER=root");
+-    e.add("COLUMNS=");
+-    e.add("EMPTY=");
+-    e.add("SHELL=");
+ 
+     this->env->add("COLUMNS=");
+     this->env->add(sbuild::environment::value_type("SHELL", ""));
+ 
+-    CPPUNIT_ASSERT(this->env->size() == 5);
++    CPPUNIT_ASSERT(this->env->size() == 2);
+     CPPUNIT_ASSERT(e == *this->env);
+   }
+ 
+@@ -210,8 +202,7 @@
+   test_remove_strv()
+   {
+     const char *items[] = {"SHELL=/bin/bash",
+-                           "COLUMNS=160",
+-                           "EMPTY=", 0};
++                           "COLUMNS=160", 0};
+     this->env->remove(const_cast<char **>(&items[0]));
+ 
+     CPPUNIT_ASSERT(this->env->size() == 2);
+@@ -224,7 +215,6 @@
+     sbuild::environment e;
+     e.add("SHELL=/bin/bash");
+     e.add("COLUMNS=160");
+-    e.add("EMPTY=");
+ 
+     this->env->remove(e);
+ 
+@@ -236,7 +226,6 @@
+   {
+     this->env->remove(sbuild::environment::value_type("SHELL", "/bin/bash"));
+     this->env->remove(sbuild::environment::value_type("COLUMNS", "160"));
+-    this->env->remove(sbuild::environment::value_type("EMPTY", ""));
+ 
+     CPPUNIT_ASSERT(*this->env == *this->half_env);
+   }
+@@ -246,7 +235,6 @@
+   {
+     this->env->remove("SHELL=/bin/bash");
+     this->env->remove("COLUMNS=160");
+-    this->env->remove("EMPTY=");
+ 
+     CPPUNIT_ASSERT(*this->env == *this->half_env);
+   }
+@@ -260,7 +248,6 @@
+     CPPUNIT_ASSERT(this->env->get("COLUMNS", value) && value == "80");
+     // Check failure doesn't overwrite value.
+     CPPUNIT_ASSERT(!this->env->get("MUSTFAIL", value) && value == "80");
+-    CPPUNIT_ASSERT(this->env->get("EMPTY", value) && value == "");
+ 
+     // Check getting templated types.
+     int tval;
+@@ -274,12 +261,11 @@
+     int size = 0;
+     for (char **ev = strv; ev != 0 && *ev != 0; ++ev, ++size);
+ 
+-    CPPUNIT_ASSERT(size == 5);
++    CPPUNIT_ASSERT(size == 4);
+     CPPUNIT_ASSERT(std::string(strv[0]) == "COLUMNS=80");
+-    CPPUNIT_ASSERT(std::string(strv[1]) == "EMPTY=");
+-    CPPUNIT_ASSERT(std::string(strv[2]) == "SHELL=/bin/sh");
+-    CPPUNIT_ASSERT(std::string(strv[3]) == "TERM=wy50");
+-    CPPUNIT_ASSERT(std::string(strv[4]) == "USER=root");
++    CPPUNIT_ASSERT(std::string(strv[1]) == "SHELL=/bin/sh");
++    CPPUNIT_ASSERT(std::string(strv[2]) == "TERM=wy50");
++    CPPUNIT_ASSERT(std::string(strv[3]) == "USER=root");
+ 
+     sbuild::strv_delete(strv);
+   }
+@@ -289,7 +275,6 @@
+     sbuild::environment e;
+     e.add("SHELL=/bin/sh");
+     e.add("COLUMNS=80");
+-    e.add("EMPTY=");
+ 
+     sbuild::environment result;
+     result = *this->half_env + e;
+@@ -298,7 +283,6 @@
+     sbuild::environment e2;
+     e2 = *this->half_env + "SHELL=/bin/sh";
+     e2 = e2 + sbuild::environment::value_type("COLUMNS", "80");
+-    e2 = e2 + sbuild::environment::value_type("EMPTY", "");
+     CPPUNIT_ASSERT(e2 == *this->env);
+   }
+ 
+@@ -307,7 +291,6 @@
+     sbuild::environment e;
+     e.add("SHELL=/bin/sh");
+     e.add("COLUMNS=80");
+-    e.add("EMPTY=");
+ 
+     sbuild::environment result(*this->half_env);
+     result += e;
+@@ -318,8 +301,6 @@
+     // TODO: Why does calling direct fail?
+     sbuild::environment::value_type val("COLUMNS", "80");
+     e2 += val;
+-    sbuild::environment::value_type val2("EMPTY", "");
+-    e2 += val2;
+     CPPUNIT_ASSERT(e2 == *this->env);
+   }
+ 
+@@ -328,7 +309,6 @@
+     sbuild::environment e;
+     e.add("SHELL=/bin/sh");
+     e.add("COLUMNS=80");
+-    e.add("EMPTY=");
+ 
+     sbuild::environment result;
+     result = *this->env - e;
+@@ -337,7 +317,6 @@
+     sbuild::environment e2;
+     e2 = *this->env - "SHELL=/bin/sh";
+     e2 = e2 - sbuild::environment::value_type("COLUMNS", "80");
+-    e2 = e2 - sbuild::environment::value_type("EMPTY", "");
+     CPPUNIT_ASSERT(e2 == *this->half_env);
+   }
+ 
+@@ -346,7 +325,6 @@
+     sbuild::environment e;
+     e.add("SHELL=/bin/sh");
+     e.add("COLUMNS=80");
+-    e.add("EMPTY=");
+ 
+     sbuild::environment result(*this->env);
+     result -= e;
+@@ -357,8 +335,6 @@
+     // TODO: Why does calling direct fail?
+     sbuild::environment::value_type val("COLUMNS", "80");
+     e2 -= val;
+-    sbuild::environment::value_type val2("EMPTY", "");
+-    e2 -= val2;
+     CPPUNIT_ASSERT(e2 == *this->half_env);
+   }
+ 
+@@ -398,7 +374,6 @@
+ 
+     CPPUNIT_ASSERT(os.str() ==
+                    "COLUMNS=80\n"
+-                   "EMPTY=\n"
+                    "SHELL=/bin/sh\n"
+                    "TERM=wy50\n"
+                    "USER=root\n");

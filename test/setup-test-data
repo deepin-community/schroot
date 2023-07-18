@@ -1,0 +1,8 @@
+#!/bin/sh
+# This script ensures that the test data is owned by root.
+
+rm -rf testdata
+mkdir testdata
+cp -r ${srcdir}/*.ex* testdata
+mkdir testdata/run-parts.ex2
+chown -R root:root testdata

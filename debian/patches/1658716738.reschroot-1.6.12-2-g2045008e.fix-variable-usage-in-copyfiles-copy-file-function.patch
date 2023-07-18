@@ -1,0 +1,25 @@
+Subject: Fix variable usage in copyfiles copy_file() function
+Origin: release/reschroot-1.6.12-2-g2045008e
+    <https://codeberg.org/shelter/reschroot/commit/2045008e614229fffeca4b1a3f8915c8bb7bdebc>
+Upstream-Author: Guillem Jover <guillem@hadrons.org>
+Date: Mon Jul 25 04:38:58 2022 +0200
+
+    The function was using $file to refer to the source file of the copy,
+    instead of $1. This happens to currently work because in shell the
+    function has access to the global variables defined from the call site,
+    but this makes it dependent on the global state and the call site
+    semantics. If these variables change name then this specific code will
+    stop working, which will be the case with the upcoming source and
+    optional destination specification in copyfiles.
+
+--- a/etc/setup.d/20copyfiles
++++ b/etc/setup.d/20copyfiles
+@@ -71,7 +71,7 @@
+         fi
+ 
+     else
+-        fatal "Not copying nonexistent file: $file"
++        fatal "Not copying nonexistent file: $1"
+     fi
+ }
+ 

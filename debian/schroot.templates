@@ -1,0 +1,16 @@
+Template: schroot/bad-names
+Type: note
+_Description: Stricter rule on chroot names
+ Due to stricter rules on the name, the chroots listed below are no longer
+ supported.
+ .
+  ${LIST}
+ .
+ Chroot names must begin with an letter or digit, the remaining
+ characters may additionally be dash ('-'), dot ('.'), or
+ underscore ('_').
+ .
+ Please rename or remove them before installing a newer version of
+ schroot.  For instructions, see /usr/share/doc/schroot/NEWS.gz or
+ <https://codeberg.org/shelter/reschroot/src/branch/main/NEWS>,
+ starting at "Major changes in 1.6.13".

@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -e
+
+# Source debconf library
+. /usr/share/debconf/confmodule
+
+check_chroot_names() {
+    list="$(schroot --list --all | LC_ALL=C grep -vE '^[a-z]+:[a-zA-Z0-9][a-zA-Z0-9_.-]*$' | sed -e 's/^/ * /')"
+    if [ "$list" ]; then
+        # Always show this alert
+        db_fset schroot/bad-names seen false
+        db_capb escape
+        db_subst schroot/bad-names LIST "$(printf '%s' "$list" | debconf-escape -e)"
+        db_input critical schroot/bad-names || true
+        db_go
+        exit 1
+    fi
+}
+
+case "$1" in
+    install) ;;
+
+    upgrade)
+        if dpkg --compare-versions "$2" 'lt' '1.6.12-2~'; then
+            check_chroot_names
+        fi
+        ;;
+
+    abort-upgrade) ;;
+
+    *)
+        echo "preinst called with unknown argument '$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+exit 0

@@ -1,0 +1,115 @@
+Subject: Update French translation
+Origin: release/reschroot-1.6.13-4-g93017cff <https://codeberg.org/shelter/reschroot/commit/93017cff>
+Upstream-Author: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Date: Sat Sep 24 11:23:12 2022 +0200
+
+    Thanks Martin Quinson <Martin.Quinson@ens-rennes.fr>
+
+    Debian bug: https://bugs.debian.org/1020255
+
+--- a/man/po/fr.po
++++ b/man/po/fr.po
+@@ -337,7 +337,7 @@
+ "utilisant le même mécanisme, mais avec plusieurs caractéristiques "
+ "supplémentaires. Alors que schroot utilise un répertoire comme chroot "
+ "exactement comme B<chroot>(8), il n'a pas besoin que celui-ci soit un "
+-"répertoire ordinnaire du système de fichier. Bien que cela soit la valeur "
++"répertoire ordinaire du système de fichier. Bien que cela soit la valeur "
+ "par défaut, le chroot peut également être créé à partir d'un fichier, d'un "
+ "système de fichiers, incluant les instantanés LVM et Btrfs et les montages "
+ "« loopback », ou composé d'une surcouche unionfs. B<schroot> étant "
+@@ -976,7 +976,7 @@
+ "between namespace and chroot names, it is not permitted to use this "
+ "character in chroot names."
+ msgstr ""
+-"Il y a trois types de chroot différents : les chroots ordinnaires, les "
++"Il y a trois types de chroot différents : les chroots ordinaires, les "
+ "chroots source et les chroots session. Ces différents types de chroot sont "
+ "séparés dans différents I<espaces de noms>. Un espace de noms est un préfixe "
+ "à un nom de chroot. Pour le moment, il y a trois espaces de noms : "
+@@ -1086,7 +1086,7 @@
+ "chroots session. Le résultat est que l'espace de noms n'est normalement "
+ "jamais requis, sauf quand vous avez besoin de travailler avec un chroot dans "
+ "un espace de noms différent de celui par défaut, comme lorsque vous utilisez "
+-"un chroot source. Pour effectuer une sélection de chroot sans ambigüité, il "
++"un chroot source. Pour effectuer une sélection de chroot sans ambiguïté, il "
+ "est toujours possible d'utiliser le nom complet incluant l'espace de noms, "
+ "même quand cela n'est pas strictement nécessaire."
+ 
+@@ -2205,7 +2205,7 @@
+ "once, for example on failure."
+ msgstr ""
+ "Notez que les scripts devraient être I<idempotent>. Ils B<doivent> être "
+-"idempotentsd pendant la phase \\[oq]setup-stop\\[cq], car ils pourraient être "
++"idempotents pendant la phase \\[oq]setup-stop\\[cq], car ils pourraient être "
+ "exécutés plus d'une fois, par exemple en cas d'échec."
+ 
+ #. type: SS
+@@ -2327,7 +2327,7 @@
+ "\\[oq]verbose\\[cq] if all messages may be printed.  Previously called "
+ "AUTH_VERBOSITY."
+ msgstr ""
+-"Définir à \\[oq]quiet\\[cq] si seuls les messages d'erreur doivent être "
++"Défini à \\[oq]quiet\\[cq] si seuls les messages d'erreur doivent être "
+ "affichés, \\[oq]normal\\[cq] pour afficher plus de messages et \\[oq]verbose"
+ "\\[cq] si tous les messages doivent être affichés. Précédemment appelée "
+ "AUTH_VERBOSITY."
+@@ -2344,7 +2344,7 @@
+ "Set to \\[oq]true\\[cq] if a session will be created, otherwise \\[oq]false"
+ "\\[cq]."
+ msgstr ""
+-"Définir à \\[oq]true\\[cq] si une session sera créée, sinon \\[oq]false"
++"Défini à \\[oq]true\\[cq] si une session doit être créée, sinon \\[oq]false"
+ "\\[cq]."
+ 
+ #. type: TP
+@@ -2359,7 +2359,7 @@
+ "Set to \\[oq]true\\[cq] if a session will be cloned, otherwise \\[oq]false"
+ "\\[cq]."
+ msgstr ""
+-"Définir à \\[oq]true\\[cq] si une session sera clonée, sinon \\[oq]false"
++"Défini à \\[oq]true\\[cq] si une session doit être clonée, sinon \\[oq]false"
+ "\\[cq]."
+ 
+ #. type: TP
+@@ -2374,19 +2374,18 @@
+ "Set to \\[oq]true\\[cq] if a session will be purged, otherwise \\[oq]false"
+ "\\[cq]."
+ msgstr ""
+-"Définir à \\[oq]true\\[cq] si une session sera purgée, sinon \\[oq]false"
++"Défini à \\[oq]true\\[cq] si une session doit être purgée, sinon \\[oq]false"
+ "\\[cq]."
+ 
+ #. type: TP
+ #: schroot-setup.5.man:95
+-#, fuzzy, no-wrap
++#, no-wrap
+ #| msgid "CHROOT_SESSION_PURGE"
+ msgid "CHROOT_SESSION_SOURCE"
+-msgstr "CHROOT_SESSION_PURGE"
++msgstr "CHROOT_SESSION_SOURCE"
+ 
+ #. type: Plain text
+ #: schroot-setup.5.man:99
+-#, fuzzy
+ #| msgid ""
+ #| "Set to \\[oq]true\\[cq] if a session will be created, otherwise "
+ #| "\\[oq]false\\[cq]."
+@@ -2394,7 +2393,7 @@
+ "Set to \\[oq]true\\[cq] if a session will be created from a source chroot, "
+ "otherwise \\[oq]false\\[cq]."
+ msgstr ""
+-"Définir à \\[oq]true\\[cq] si une session sera créée, sinon \\[oq]false"
++"Défini à \\[oq]true\\[cq] si une session doit être créée depuis un chroot source, sinon \\[oq]false"
+ "\\[cq]."
+ 
+ #. type: TP
+@@ -2543,7 +2542,7 @@
+ "Set to \\[oq]true\\[cq] to repack the chroot into an archive file on ending "
+ "a session, otherwise \\[oq]false\\[cq]."
+ msgstr ""
+-"Définir à \\[oq]true\\[cq] pour recompacter le chroot dans une archive à la "
++"Défini à \\[oq]true\\[cq] pour recompacter le chroot dans une archive à la "
+ "fin de la session, sinon \\[oq]false\\[cq]."
+ 
+ #. type: SS

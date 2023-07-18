@@ -1,0 +1,77 @@
+Subject: Replace usage of egrep and which
+Origin: release/reschroot-1.6.13-2-g779349dc <https://codeberg.org/shelter/reschroot/commit/779349dc>
+Upstream-Author: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Date: Thu Sep 8 18:51:51 2022 +0200
+
+    Debian bug: https://bugs.debian.org/1019295
+
+--- a/etc/setup.d/05file
++++ b/etc/setup.d/05file
+@@ -28,17 +28,17 @@
+ {
+     if echo "$CHROOT_FILE" | grep -q '\.tar$'; then
+         filetype="tar"
+-    elif echo "$CHROOT_FILE" | egrep -q '(\.tar\.gz|\.tgz)$'; then
++    elif echo "$CHROOT_FILE" | grep -Eq '(\.tar\.gz|\.tgz)$'; then
+         filetype="tgz"
+-    elif echo "$CHROOT_FILE" | egrep -q '(\.tar\.bz2|\.tbz)$'; then
++    elif echo "$CHROOT_FILE" | grep -Eq '(\.tar\.bz2|\.tbz)$'; then
+         filetype="tbz"
+-    elif echo "$CHROOT_FILE" | egrep -q '(\.tar\.xz|\.txz)$'; then
++    elif echo "$CHROOT_FILE" | grep -Eq '(\.tar\.xz|\.txz)$'; then
+         filetype="txz"
+-    elif echo "$CHROOT_FILE" | egrep -q '(\.tar\.lzo|\.tzo)$'; then
++    elif echo "$CHROOT_FILE" | grep -Eq '(\.tar\.lzo|\.tzo)$'; then
+         filetype="tzo"
+-    elif echo "$CHROOT_FILE" | egrep -q '(\.tar\.lz4|\.tlz4)$'; then
++    elif echo "$CHROOT_FILE" | grep -Eq '(\.tar\.lz4|\.tlz4)$'; then
+         filetype="tlz4"
+-    elif echo "$CHROOT_FILE" | egrep -q '\.tar\.zstd$'; then
++    elif echo "$CHROOT_FILE" | grep -Eq '\.tar\.zstd$'; then
+         filetype="tzstd"
+     else
+         fatal "Unsupported filetype for $CHROOT_FILE"
+--- a/etc/setup.d/15binfmt
++++ b/etc/setup.d/15binfmt
+@@ -28,7 +28,7 @@
+    [ "$STAGE" != "setup-stop"  ] && \
+    [ "$STAGE" != "setup-recover" ]; then
+     exit 0
+-elif ! which update-binfmts > /dev/null 2>&1; then
++elif ! command -v update-binfmts > /dev/null 2>&1; then
+     info "Missing update-binfmts; not enabling binfmt support"
+     exit 0
+ fi
+--- a/etc/setup.d/15killprocs
++++ b/etc/setup.d/15killprocs
+@@ -45,7 +45,7 @@
+     fi
+ 
+     info "Killing processes run inside $1"
+-    ls /proc | egrep '^[[:digit:]]+$' |
++    ls /proc | grep -E '^[[:digit:]]+$' |
+     while read pid; do
+         # Check if process root are the same device/inode as chroot
+         # root (for efficiency)
+--- a/etc/setup.d/20copyfiles
++++ b/etc/setup.d/20copyfiles
+@@ -118,7 +118,7 @@
+         if [ -f "$SETUP_COPYFILES" ]; then
+             while read src dst; do
+                 : ${dst:=$src}
+-                if echo "$src" | egrep -q '^(#|$)' ; then
++                if echo "$src" | grep -Eq '^(#|$)' ; then
+                     continue
+                 fi
+                 if echo "$src" | grep -q '^/' &&
+--- a/etc/setup.d/20nssdatabases
++++ b/etc/setup.d/20nssdatabases
+@@ -37,7 +37,7 @@
+     if [ -n "$SETUP_NSSDATABASES" ]; then
+         if [ -f "$SETUP_NSSDATABASES" ]; then
+             while read db; do
+-                if echo "$db" | egrep -q '^(#|$)' ; then
++                if echo "$db" | grep -Eq '^(#|$)' ; then
+                     continue
+                 fi
+ 

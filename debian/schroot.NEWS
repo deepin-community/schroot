@@ -1,0 +1,25 @@
+schroot (1.6.12-2) unstable; urgency=high
+
+  To avoid denial-of-service and possible even worse attacks, a stricter
+  rule for a chroot name has been implemented. Only letters and digits are
+  allowed as the first character, following may also contain dash, dot,
+  or underscore.
+
+  Existing chroots and sessions are checked during upgrade, and upgrade
+  is aborted if any future invalid name is detected.
+
+  Please rename or remove them before installing a newer version of
+  schroot.  See /usr/share/doc/schroot/NEWS.gz or
+  https://codeberg.org/shelter/reschroot/src/branch/main/NEWS for
+  instructions, starting at "Major changes in 1.6.13".
+
+ -- Christoph Biedl <debian.axhn@manchmal.in-ulm.de>  Thu, 11 Aug 2022 21:04:10 +0200
+
+schroot (1.6.10-14) unstable; urgency=medium
+
+  Historically, a variable named SESSIONS_RECOVER was supported in
+  `/etc/default/schroot`. This was renamed to START_ACTION and
+  STOP_ACTION in 1.5.2-1 (2012), support for the old one now finally
+  removed.
+
+ -- Christoph Biedl <debian.axhn@manchmal.in-ulm.de>  Tue, 31 May 2022 07:59:48 +0200

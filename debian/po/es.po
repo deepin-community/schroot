@@ -1,0 +1,66 @@
+# Translation of schroot debconf templates to Spanish.
+# Copyright (C) 2022 Christoph Biedl
+# This file is distributed under the same license as the schroot package.
+# 2022 Christoph Biedl <debian.axhn@manchmal.in-ulm.de>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: schroot\n"
+"Report-Msgid-Bugs-To: schroot@packages.debian.org\n"
+"POT-Creation-Date: 2022-08-15 20:51+0200\n"
+"PO-Revision-Date: 2022-08-27 14:56+0200\n"
+"Language-Team: Debian L10n Spanish <debian-l10n-spanish@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.4.2\n"
+"Last-Translator: Camaleón <noelamac@gmail.com>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: es\n"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid "Stricter rule on chroot names"
+msgstr "Reglas más restrictivas para los nombres en entornos chroot"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Due to stricter rules on the name, the chroots listed below are no longer "
+"supported."
+msgstr ""
+"Debido a reglas más estrictas en los nombres, los siguientes chroot ya no "
+"se admiten."
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid " ${LIST}"
+msgstr " ${LIST}"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Chroot names must begin with an letter or digit, the remaining characters "
+"may additionally be dash ('-'), dot ('.'), or underscore ('_')."
+msgstr ""
+"Los nombres chroot deben comenzar con una letra o un número, para el resto "
+"de caracteres también puede usar guión («-»), punto («.») o guión bajo "
+"(«_»)."
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Please rename or remove them before installing a newer version of schroot.  "
+"For instructions, see /usr/share/doc/schroot/NEWS.gz or <https://codeberg."
+"org/shelter/reschroot/src/branch/main/NEWS>, starting at \"Major changes in "
+"1.6.13\"."
+msgstr ""
+"Cambiéles el nombre o elimínelos antes de instalar una nueva versión de "
+"schroot. Para más información, consulte «/usr/share/doc/schroot/NEWS.gz» o "
+"«https://codeberg.org/shelter/reschroot/src/branch/main/NEWS», empezando "
+"por «Cambios importantes en la versión 1.6.13»."

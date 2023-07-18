@@ -1,0 +1,51 @@
+Subject: Support copyfiles <source> <destination> specifications
+Origin: release/schroot-1.7.2-138-g5a611c49 <https://codeberg.org/shelter/reschroot/commit/5a611c49>
+Upstream-Author: Guillem Jover <guillem@hadrons.org>
+Date: Thu Feb 23 19:03:19 2017 +0100
+
+    This makes it possible to store local files in the schroot configuration
+    directory that will get installed on the chroot. For example a local
+    policy-rc.d script.
+
+--- a/etc/profile-templates/all/all/copyfiles
++++ b/etc/profile-templates/all/all/copyfiles
+@@ -1,4 +1,4 @@
+ # Files to copy into the chroot from the host system.
+ #
+-# <source and destination>
++# <source-and-destination>[ <destination>]
+ /etc/resolv.conf
+--- a/etc/profile-templates/buildd/all/copyfiles
++++ b/etc/profile-templates/buildd/all/copyfiles
+@@ -1,6 +1,6 @@
+ # Files to copy into the chroot from the host system.
+ #
+-# <source and destination>
++# <source-and-destination>[ <destination>]
+ /etc/hosts
+ /etc/resolv.conf
+ /etc/networks
+--- a/etc/setup.d/20copyfiles
++++ b/etc/setup.d/20copyfiles
+@@ -116,14 +116,16 @@
+ 
+     if [ -n "$SETUP_COPYFILES" ]; then
+         if [ -f "$SETUP_COPYFILES" ]; then
+-            while read file; do
+-                if echo "$file" | egrep -q '^(#|$)' ; then
++            while read src dst; do
++                : ${dst:=$src}
++                if echo "$src" | egrep -q '^(#|$)' ; then
+                     continue
+                 fi
+-                if echo "$file" | grep -q '^/'; then
+-                    copy_file "$file" "$(resolve_path "${CHROOT_PATH}" "$file")"
++                if echo "$src" | grep -q '^/' &&
++                   echo "$dst" | grep -q '^/'; then
++                    copy_file "$src" "$(resolve_path "${CHROOT_PATH}" "$dst")"
+                 else
+-                    warn "Not copying file with relative path: $file"
++                    warn "Not copying file with relative path: $src -> $dst"
+                 fi
+             done < "$SETUP_COPYFILES"
+         else
