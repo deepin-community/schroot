@@ -1,0 +1,62 @@
+#!/bin/sh
+
+set -eu
+
+SCHROOT=/usr/bin/schroot
+
+. /lib/lsb/init-functions
+
+STOP_ACTION=
+START_ACTION=
+
+# Include schroot defaults if available
+if [ -f /etc/default/schroot ]; then
+    . /etc/default/schroot
+fi
+
+recover_sessions() {
+    log_daemon_msg "Recovering schroot sessions"
+    for chroot in $("$SCHROOT" --all-sessions --list --quiet); do
+        $SCHROOT --chroot="$chroot" --recover-session || true
+        log_progress_msg "$chroot"
+    done
+    log_end_msg 0
+}
+
+end_sessions() {
+    log_daemon_msg "Ending schroot sessions"
+    for chroot in $("$SCHROOT" --all-sessions --list --quiet); do
+        $SCHROOT --chroot="$chroot" --end-session || true
+        log_progress_msg "$chroot"
+    done
+    log_end_msg 0
+}
+
+case "${1:-}" in
+    start)
+        # Delete /var/lock/schroot if it's not root:root 0700, or if
+        # it's not a directory.
+        if [ -e /var/lock/schroot ]; then
+            if [ "$(stat -c "%u %g %a" /var/lock/schroot)" != "0 0 700" ]; then
+                rm -rf /var/lock/schroot
+            fi
+            if [ ! -d /var/lock/schroot ]; then
+                rm -rf /var/lock/schroot
+            fi
+        fi
+        if [ ! -d /var/lock/schroot ]; then
+            mkdir -m 0700 /var/lock/schroot
+        fi
+
+        if [ "$START_ACTION" = 'end' ]; then
+            end_sessions
+        else
+            recover_sessions
+        fi
+        ;;
+    stop)
+        if [ "$STOP_ACTION" = 'end' ]; then
+            end_sessions
+        fi
+        ;;
+esac

@@ -1,0 +1,20 @@
+Subject: Support copyfiles installation into non-existent directories
+Origin: release/schroot-1.7.2-137-g5c36362b <https://codeberg.org/shelter/reschroot/commit/5c36362b>
+Upstream-Author: Guillem Jover <guillem@hadrons.org>
+Date: Thu Feb 23 19:02:25 2017 +0100
+
+    Trying to copy a file into a non-existent directory is currently fatal,
+    and thus makes the whole schroot invocation fail. This means one cannot
+    unconditionally add files if the chroot is possibly not going to have
+    the containing directory.
+
+--- a/etc/setup.d/20copyfiles
++++ b/etc/setup.d/20copyfiles
+@@ -62,6 +62,7 @@
+ 
+         # Copy only if files are different
+         if [ "$COPY" = "true" ]; then
++            mkdir -p $(dirname $2)
+             if [ -f "$1" ]; then
+                 cp --remove-destination --preserve=all $CP_VERBOSE "$1" "$2"
+             else

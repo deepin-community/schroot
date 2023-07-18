@@ -1,0 +1,65 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2022 Christoph Biedl
+# This file is distributed under the same license as the schroot package.
+# 2022 Christoph Biedl <debian.axhn@manchmal.in-ulm.de>, 2022.
+#
+# Helge Kreutzmann <debian@helgefjell.de>, 2022.
+msgid ""
+msgstr ""
+"Project-Id-Version: schroot 1.6.13-1\n"
+"Report-Msgid-Bugs-To: schroot@packages.debian.org\n"
+"POT-Creation-Date: 2022-08-15 20:51+0200\n"
+"PO-Revision-Date: 2022-08-22 18:45+0200\n"
+"Last-Translator: Helge Kreutzmann <debian@helgefjell.de>\n"
+"Language-Team: German <debian-l10n-german@lists.debian.org>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid "Stricter rule on chroot names"
+msgstr "Strengere Regeln bei Chroot-Namen"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Due to stricter rules on the name, the chroots listed below are no longer "
+"supported."
+msgstr ""
+"Aufgrund strengerer Namensregeln werden die nachfolgend aufgeführten Chroots "
+"nicht mehr unterstützt."
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid " ${LIST}"
+msgstr " ${LIST}"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Chroot names must begin with an letter or digit, the remaining characters "
+"may additionally be dash ('-'), dot ('.'), or underscore ('_')."
+msgstr ""
+"Chroot-Namen müssen mit einem Buchstaben oder einer Ziffer beginnen, die "
+"verbleibenden Zeichen können zusätzlich ein Bindestrich (»-«), ein Punkt "
+"(».«) oder ein Unterstrich (»_«) sein."
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Please rename or remove them before installing a newer version of schroot.  "
+"For instructions, see /usr/share/doc/schroot/NEWS.gz or <https://codeberg."
+"org/shelter/reschroot/src/branch/main/NEWS>, starting at \"Major changes in "
+"1.6.13\"."
+msgstr ""
+"Bitte benennen Sie sie vor der Installation einer neueren Version von "
+"Schroot um oder entfernen Sie sie. Anweisungen finden Sie in /usr/share/doc/"
+"schroot/NEWS.gz oder unter <https://codeberg.org/shelter/reschroot/src/"
+"branch/main/NEWS>, beginnend bei »Major changes in 1.6.13«."

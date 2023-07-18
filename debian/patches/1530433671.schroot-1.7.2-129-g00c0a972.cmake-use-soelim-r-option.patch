@@ -1,0 +1,18 @@
+Subject: Cmake: Use soelim -r option
+Origin: release/schroot-1.7.2-129-g00c0a972
+Upstream-Author: Roger Leigh <rleigh@codelibre.net>
+Date: Sun Jul 1 09:27:51 2018 +0100
+
+    While non-portable, it's implemented as a no-op in BSD soelim, and is
+    useful for reproducible builds.
+
+--- a/man/CMakeLists.txt
++++ b/man/CMakeLists.txt
+@@ -150,6 +150,7 @@
+ 
+     add_custom_command(OUTPUT ${manpage}
+                        COMMAND ${SOELIM_EXECUTABLE}
++                               -r
+                                ${manpage_includes}
+                                < "${manpage_source_file}"
+                                > "${manpage}"

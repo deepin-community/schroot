@@ -1,0 +1,2 @@
+
+schroot: elevated-privileges 4755 root/root [usr/bin/schroot]

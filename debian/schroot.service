@@ -1,0 +1,13 @@
+[Unit]
+Description=Recover schroot sessions
+Documentation=man:schroot(1)
+RequiresMountsFor=/var/lib/schroot
+
+[Service]
+Type=oneshot
+ExecStart=/usr/share/schroot/bin/schroot-init start
+ExecStop=/usr/share/schroot/bin/schroot-init stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
