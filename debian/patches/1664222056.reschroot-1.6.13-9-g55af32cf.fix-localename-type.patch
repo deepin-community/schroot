@@ -1,0 +1,33 @@
+Subject: Fix localename type
+Origin: upstream, commit release/reschroot-1.6.13-9-g55af32cf <https://codeberg.org/shelter/reschroot/commit/55af32cf>
+Author: Sam James <sam@gentoo.org>
+Date: Mon Sep 26 20:54:16 2022 +0100
+Bug-Debian: https://bugs.debian.org/1075493
+
+    Needs to be a string.
+
+    Fixes error:
+    ```
+    /var/tmp/portage/dev-util/schroot-1.6.10_p7/work/schroot-1.6.10/sbuild/sbuild-basic-keyfile.tcc:217:18: error: no viable overloaded '='
+          localename = std::locale::classic();
+          ~~~~~~~~~~ ^ ~~~~~~~~~~~~~~~~~~~~~~
+    /usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/include/g++-v10/bits/basic_string.h:665:7: note: candidate function not viable: no known conversion from 'const std::locale' to 'const std::__cxx11::basic_string<char>' for 1st argument
+          operator=(const basic_string& __str)
+          ^
+    [...]
+    ```
+
+    Bug: https://bugs.gentoo.org/739034
+    Signed-off-by: Sam James <sam@gentoo.org>
+
+--- a/sbuild/sbuild-basic-keyfile.tcc
++++ b/sbuild/sbuild-basic-keyfile.tcc
+@@ -214,7 +214,7 @@
+     }
+   catch (std::runtime_error const& e) // Invalid locale
+     {
+-      localename = std::locale::classic();
++      localename = std::locale::classic().name();
+     }
+   std::string::size_type pos;
+   bool status = false;

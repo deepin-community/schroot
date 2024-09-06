@@ -18,7 +18,7 @@ Build-Depends: debhelper-compat (= 13),
     libboost-regex-dev,
     libcppunit-dev,
     libpam0g-dev,
-    pkg-config,
+    pkgconf,
     po4a,
     po-debconf,
     uuid-dev [!kfreebsd-any],
@@ -46,8 +46,8 @@ Architecture: any
 Pre-Depends:
     debconf,
 Depends: ${misc:Depends}, ${shlibs:Depends},
-    lsb-base,
     schroot-common (= ${source:Version}),
+    sysvinit-utils,
 Suggests:
     aufs-tools | unionfs-fuse,
     btrfs-progs,

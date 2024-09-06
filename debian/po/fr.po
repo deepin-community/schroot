@@ -1,0 +1,64 @@
+# Translation of schroot debconf templates to French
+# Copyright (C) 2022, French l10n team <debian-l10n-french@lists.debian.org
+# This file is distributed under the same license as the schroot package.
+# # Jean-Pierre Giraud <jean-pierregiraud@neuf.fr>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: schroot\n"
+"Report-Msgid-Bugs-To: schroot@packages.debian.org\n"
+"POT-Creation-Date: 2022-08-15 20:51+0200\n"
+"PO-Revision-Date: 2022-09-02 10:21+0200\n"
+"Last-Translator: Jean-Pierre Giraud <jean-pierregiraud@neuf.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid "Stricter rule on chroot names"
+msgstr "Règles plus strictes pour les noms de chroot"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Due to stricter rules on the name, the chroots listed below are no longer "
+"supported."
+msgstr ""
+"Du fait de règles plus strictes sur les noms, les chroots listés ci-dessous "
+"ne sont plus pris en charge."
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid " ${LIST}"
+msgstr " ${LIST}"
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Chroot names must begin with an letter or digit, the remaining characters "
+"may additionally be dash ('-'), dot ('.'), or underscore ('_')."
+msgstr ""
+"Les noms de chroot doivent commencer par une lettre ou un chiffre, les "
+"caractères suivants peuvent aussi être utilisés : tiret (« - »), point "
+"(« . ») ou tiret bas (« _ »)."
+
+#. Type: note
+#. Description
+#: ../schroot.templates:1001
+msgid ""
+"Please rename or remove them before installing a newer version of schroot.  "
+"For instructions, see /usr/share/doc/schroot/NEWS.gz or <https://codeberg."
+"org/shelter/reschroot/src/branch/main/NEWS>, starting at \"Major changes in "
+"1.6.13\"."
+msgstr ""
+"Veuillez les renommer ou les supprimer avant l'installation d'une version "
+"plus récente de schroot. Pour des instructions, consultez /usr/share/doc/"
+"schroot/NEWS.gz ou <https://codeberg.org/shelter/reschroot/src/branch/main/"
+"NEWS> en commençant à « Major changes in 1.6.13 »."

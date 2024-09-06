@@ -1,0 +1,16 @@
+Description: Fix example configuration
+Author: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Bug-Debian: https://bugs.debian.org/1021780
+Forwarded: yes
+Last-Update: 2022-10-14
+
+--- a/etc/schroot.conf
++++ b/etc/schroot.conf
+@@ -63,6 +63,7 @@
+ #
+ #[lenny-file]
+ #description=Debian lenny (oldstable)
++#type=file
+ #file=/srv/chroot/lenny.tar.gz
+ #location=/lenny
+ #groups=sbuild

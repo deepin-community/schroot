@@ -1,0 +1,22 @@
+Subject: Document a login shell might be switched to a regular shell
+Origin: upstream, commit release/reschroot-1.6.13-5-g81b88b45 <https://codeberg.org/shelter/reschroot/commit/81b88b45>
+Author: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Date: Mon Oct 17 10:36:10 2022 +0200
+
+    Possibly that behaviour can be changed at a later time.
+
+    Spotted by Sven Brinkmann.
+
+--- a/man/schroot.1.man
++++ b/man/schroot.1.man
+@@ -627,6 +627,10 @@
+ as an \[lq]Operation not permitted\[rq] (EPERM) error.  To work around this
+ problem, set \f[CI]personality\fP to \[oq]undefined\[cq], or upgrade to a more
+ recent kernel.
++.PP
++The default execution of a login shell is silently changed to a regular shell
++if at least one of \fI\-\-preserve\-environment\fP or \f[CI]command\-prefix\fP
++is used.
+ .SH ENVIRONMENT
+ By default, the environment is not preserved, and the following environment
+ variables are defined: HOME, LOGNAME, PATH, SHELL, TERM (preserved if already
