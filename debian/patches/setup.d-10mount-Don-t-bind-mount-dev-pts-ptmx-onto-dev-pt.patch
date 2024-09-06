@@ -1,0 +1,52 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Tue, 20 Aug 2024 11:37:25 +0100
+Subject: setup.d/10mount: Don't bind-mount /dev/pts/ptmx onto /dev/ptmx
+
+If /dev/pts is a new instance of devpts with ptmxmode=666, as it is since
+commit 271acf6e "Subject: Mount a new instance of /dev/pts in the chroot",
+then it's safe to bind-mount /dev/pts/ptmx onto /dev/ptmx because
+we explicitly make its mode 0666.
+
+However, if an old conffile has been kept or overwritten by configuration
+management (as on debian-ports buildds), or if a profile has been
+explicitly configured to bind-mount the host's /dev/pts in preference
+to using a new instance, then it is not safe to bind-mount the host's
+/dev/pts/ptmx onto /dev/ptmx, because the host's /dev/pts/ptmx will
+often have permissions 000 for reasons that are not clear to me.
+
+With recent-ish kernels (v4.7+, with commit eedf265a
+"devpts: Make each mount of devpts an independent filesystem" included),
+this bind-mount becomes unnecessary, because the kernel automatically
+redirects actions on /dev/ptmx to work with an adjacent devpts mount.
+It was included in my 2017 patch to accommodate older kernels like
+the one in Debian 8 'jessie', but is unnecessary if we can assume a
+Debian 9 'stretch' or later kernel.
+
+Bug-Debian: https://bugs.debian.org/1079124
+Fixes: 271acf6e "Subject: Mount a new instance of /dev/pts in the chroot"
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ etc/setup.d/10mount | 10 ----------
+ 1 file changed, 10 deletions(-)
+
+diff --git a/etc/setup.d/10mount b/etc/setup.d/10mount
+index 010b8b4..31e817d 100755
+--- a/etc/setup.d/10mount
++++ b/etc/setup.d/10mount
+@@ -286,16 +286,6 @@ fi
+ 
+ if [ $STAGE = "setup-start" ] || [ $STAGE = "setup-recover" ]; then
+     if [ "$(uname -s)" = "Linux" ]; then
+-        # Depending on how /dev was set up, /dev/ptmx might either be
+-        # character device (5,2), or a symbolic link to pts/ptmx.
+-        # Either way we want it to be equivalent to /dev/pts/ptmx, assuming
+-        # both exist.
+-        if [ -e "$CHROOT_PATH/dev/pts/ptmx" ] && \
+-                [ -e "$CHROOT_PATH/dev/ptmx" ] && \
+-                ! [ "$CHROOT_PATH/dev/pts/ptmx" -ef "$CHROOT_PATH/dev/ptmx" ]; then
+-            mount --bind "$CHROOT_PATH/dev/pts/ptmx" "$CHROOT_PATH/dev/ptmx"
+-        fi
+-
+         # If schroot was invoked from a terminal, we still want to be able to
+         # access that terminal. lxc and systemd-nspawn achieve this by
+         # binding it onto /dev/console; so can we.

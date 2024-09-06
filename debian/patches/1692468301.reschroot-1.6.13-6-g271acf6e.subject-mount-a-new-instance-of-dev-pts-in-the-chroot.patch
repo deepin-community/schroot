@@ -1,0 +1,119 @@
+Subject: Subject: Mount a new instance of /dev/pts in the chroot
+Origin: upstream, commit release/reschroot-1.6.13-6-g271acf6e <https://codeberg.org/shelter/reschroot/commit/271acf6e>
+Author: Christoph Biedl <debian.axhn@manchmal.in-ulm.de>
+Date: Sat Aug 19 19:05:01 2023 +0100
+
+    Provided by Simon McVittie <smcv@debian.org>, thanks.
+
+    This avoids various failure modes when schroot is run inside some other
+    container manager, such as lxc, most commonly manifesting as inability
+    to run programs that create pseudo-terminals such as script(1).
+
+    Mounting a new instance of devpts is considered to be
+    best-practice for container managers in Linux >= v2.6.29 with
+    CONFIG_DEVPTS_MULTIPLE_INSTANCES=y. That config option was made
+    unconditional in v4.7.
+
+    This has some assumptions, which cannot be avoided if we are going to
+    mount /dev/pts using schroot's fstab:
+
+    * If the kernel is older than v4.7, it is assumed to be v2.6.29 or
+      later with CONFIG_DEVPTS_MULTIPLE_INSTANCES=y. Users of older kernels,
+      or intermediate versions with CONFIG_DEVPTS_MULTIPLE_INSTANCES=n,
+      can revert this change via /etc.
+
+    * gid 5 must be the right owner for ptys. This is correct for Debian
+      (it's the hard-coded tty group specified in base-passwd) and probably
+      many other distributions (it's systemd's configure-time default) but
+      not necessarily correct everywhere. However, if the host system and the
+      chroot disagree on the right gid, schroot's previous behaviour would
+      have been wrong anyway, because it bind-mounted the host's /dev/pts.
+
+    * /dev/ptmx inside the chroot must be either a real device node (as
+      created by debootstrap < 1.0.76, and debootstrap >= 1.0.89 if possible)
+      or a symlink to pts/ptmx (as created by debootstrap between 1.0.76 and
+      1.0.88 inclusive, and by debootstrap >= 1.0.89 if run in a container
+      whose seccomp rules do not allow it to create the device node, such
+      as systemd-nspawn).
+
+    Bind-mounting /dev/pts/ptmx over /dev/ptmx, so that we get the
+    new instance's /dev/ptmx equivalent instead of the host's, can only
+    be done from code, so I have done it in the 10mount hook instead of
+    in the fstab.
+
+    To keep the host system terminal on which we were invoked (which might
+    itself be a pty, from a different instance of /dev/pts) available to
+    the chroot, bind-mount it onto /dev/console. This is the same trick
+    used in the lxc and systemd-nspawn Linux container managers.
+
+    Bug-Debian: https://bugs.debian.org/856877
+    Bug-Debian: https://bugs.debian.org/983423
+    Signed-off-by: Simon McVittie <smcv@debian.org>
+
+--- a/etc/profile-templates/buildd/linux/fstab
++++ b/etc/profile-templates/buildd/linux/fstab
+@@ -1,4 +1,4 @@
+-/dev/pts        /dev/pts        none    rw,bind         0       0
++/dev/pts        /dev/pts        devpts  rw,newinstance,ptmxmode=666,mode=620,gid=5 0 0
+ tmpfs           /dev/shm        tmpfs   defaults        0       0
+ # Mount a large scratch space for the build, so we don't use up
+ # space on an LVM snapshot of the chroot itself.
+--- a/etc/profile-templates/default/linux/fstab
++++ b/etc/profile-templates/default/linux/fstab
+@@ -1,5 +1,5 @@
+ /dev            /dev            none    rw,bind         0       0
+-/dev/pts        /dev/pts        none    rw,bind         0       0
++/dev/pts        /dev/pts        devpts  rw,newinstance,ptmxmode=666,mode=620,gid=5 0 0
+ /home           /home           none    rw,bind         0       0
+ /tmp            /tmp            none    rw,bind         0       0
+ 
+--- a/etc/profile-templates/desktop/linux/fstab
++++ b/etc/profile-templates/desktop/linux/fstab
+@@ -1,5 +1,5 @@
+ /dev            /dev            none    rw,bind         0       0
+-/dev/pts        /dev/pts        none    rw,bind         0       0
++/dev/pts        /dev/pts        devpts  rw,newinstance,ptmxmode=666,mode=620,gid=5 0 0
+ /home           /home           none    rw,bind         0       0
+ /tmp            /tmp            none    rw,bind         0       0
+ 
+--- a/etc/profile-templates/sbuild/linux/fstab
++++ b/etc/profile-templates/sbuild/linux/fstab
+@@ -1,4 +1,4 @@
+-/dev/pts        /dev/pts        none    rw,bind         0       0
++/dev/pts        /dev/pts        devpts  rw,newinstance,ptmxmode=666,mode=620,gid=5 0 0
+ tmpfs           /dev/shm        tmpfs   defaults        0       0
+ # Mount a large scratch space for the build, so we don't use up
+ # space on an LVM snapshot of the chroot itself.
+--- a/etc/setup.d/10mount
++++ b/etc/setup.d/10mount
+@@ -283,3 +283,30 @@
+     fi
+ 
+ fi
++
++if [ $STAGE = "setup-start" ] || [ $STAGE = "setup-recover" ]; then
++    if [ "$(uname -s)" = "Linux" ]; then
++        # Depending on how /dev was set up, /dev/ptmx might either be
++        # character device (5,2), or a symbolic link to pts/ptmx.
++        # Either way we want it to be equivalent to /dev/pts/ptmx, assuming
++        # both exist.
++        if [ -e "$CHROOT_PATH/dev/pts/ptmx" ] && \
++                [ -e "$CHROOT_PATH/dev/ptmx" ] && \
++                ! [ "$CHROOT_PATH/dev/pts/ptmx" -ef "$CHROOT_PATH/dev/ptmx" ]; then
++            mount --bind "$CHROOT_PATH/dev/pts/ptmx" "$CHROOT_PATH/dev/ptmx"
++        fi
++
++        # If schroot was invoked from a terminal, we still want to be able to
++        # access that terminal. lxc and systemd-nspawn achieve this by
++        # binding it onto /dev/console; so can we.
++        if stdin_tty="$(tty)"; then
++            if [ ! -e "$CHROOT_PATH/dev/console" ]; then
++                # We need something to mount onto, and it might as well be
++                # the correctly-numbered device node.
++                mknod -m700 "$CHROOT_PATH/dev/console" c 5 1
++            fi
++
++            mount --bind "$stdin_tty" "$CHROOT_PATH/dev/console"
++        fi
++    fi
++fi

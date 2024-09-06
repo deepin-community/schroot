@@ -1,0 +1,44 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Tue, 20 Aug 2024 00:29:59 +0100
+Subject: setup.d/10mount: Don't assume we can mknod /dev/console
+
+By default, systemd-nspawn containers run with CAP_MKNOD, but with a
+seccomp profile that prevents creation of device nodes other than
+the basics (and in particular preventing creation of char device 5,1,
+conventionally /dev/console).
+
+If we cannot create the usual device node for /dev/console as a mount
+point onto which to mount the terminal from which schroot was invoked,
+then we need to fall back to creating it as some other non-directory,
+non-symlink inode that can act as a mount point. An empty regular
+file will do.
+
+Thanks: Jakob Haufe
+Fixes: 271acf6e "Subject: Mount a new instance of /dev/pts in the chroot"
+Bug-Debian: https://bugs.debian.org/1078539
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ etc/setup.d/10mount | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/etc/setup.d/10mount b/etc/setup.d/10mount
+index 5e73405..010b8b4 100755
+--- a/etc/setup.d/10mount
++++ b/etc/setup.d/10mount
+@@ -301,9 +301,13 @@ if [ $STAGE = "setup-start" ] || [ $STAGE = "setup-recover" ]; then
+         # binding it onto /dev/console; so can we.
+         if stdin_tty="$(tty)"; then
+             if [ ! -e "$CHROOT_PATH/dev/console" ]; then
+-                # We need something to mount onto, and it might as well be
+-                # the correctly-numbered device node.
+-                mknod -m700 "$CHROOT_PATH/dev/console" c 5 1
++                # We need something to mount onto. Ideally it would be
++                # the correctly-numbered device node, c 5 1; but
++                # systemd-nspawn's seccomp profile does not allow creating
++                # that, so fall back to a regular empty file if necessary.
++                if ! mknod -m700 "$CHROOT_PATH/dev/console" c 5 1 2>/dev/null; then
++                    touch "$CHROOT_PATH/dev/console"
++                fi
+             fi
+ 
+             mount --bind "$stdin_tty" "$CHROOT_PATH/dev/console"
