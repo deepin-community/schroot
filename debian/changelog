@@ -1,3 +1,24 @@
+schroot (1.6.13-5) unstable; urgency=low
+
+  * Update dependencies on obsolete packages
+  * Add proposed patches to fix regressions in 1.6.13-4, thanks
+    Simon McVittie. Closes: #1078539, #1079124
+
+ -- Christoph Biedl <debian.axhn@manchmal.in-ulm.de>  Fri, 30 Aug 2024 08:32:21 +0200
+
+schroot (1.6.13-4) unstable; urgency=medium
+
+  * Drop duplicates in buildd configuration
+  * Add French debconf translation. Closes: #1020963
+  * Add Dutch debconf translation. Closes: #1021446
+  * Fix example configuration. Closes: #1021780
+  * Document a login shell might be switched to a regular shell
+  * Cherry-pick fix for build failure with GCC-14. Closes: #1075493
+  * Cherry-pick "Mount a new instance of /dev/pts in the chroot".
+    Closes: #856877, #983423
+
+ -- Christoph Biedl <debian.axhn@manchmal.in-ulm.de>  Sat, 10 Aug 2024 15:23:12 +0200
+
 schroot (1.6.13-3) unstable; urgency=medium
 
   * Add Spanish debconf translation. Closes: #1019483

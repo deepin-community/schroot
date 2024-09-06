@@ -10,8 +10,15 @@
 1662655911.reschroot-1.6.13-2-g779349dc.replace-usage-of-egrep-and-which.patch
 1662656169.reschroot-1.6.13-3-ga9e100e5.clean-up-mess-created-in-the-portuguese-translations.patch
 1664011392.reschroot-1.6.13-4-g93017cff.update-french-translation.patch
+1665995770.reschroot-1.6.13-5-g81b88b45.document-a-login-shell-might-be-switched-to-a-regular-shell.patch
+1692468301.reschroot-1.6.13-6-g271acf6e.subject-mount-a-new-instance-of-dev-pts-in-the-chroot.patch
+1664222056.reschroot-1.6.13-9-g55af32cf.fix-localename-type.patch
 
 # to be upstreamed
 1658716738.reschroot-1.6.12-2-g2045008e.fix-variable-usage-in-copyfiles-copy-file-function.patch
+fix-dupes-in-buildd-configuration.patch
+fix-example-configuration.patch
+setup.d-10mount-Don-t-assume-we-can-mknod-dev-console.patch
+setup.d-10mount-Don-t-bind-mount-dev-pts-ptmx-onto-dev-pt.patch
 
 # specific to Debian
